@@ -471,9 +471,12 @@
     copyText(buildMsg());
     $("#orderCopy").hidden = false;
     if (HAS_IG) {
-      toast("Tu pedido ya está listo ✓ En el chat mantén presionado y toca Pegar");
-      const w = window.open(IG_DM, "_blank", "noopener");
-      if (!w) setTimeout(() => { location.href = IG_DM; }, 350); // si el navegador bloquea la pestaña nueva
+      // Se intenta abrir el chat con el mensaje ya escrito (?text=).
+      // Meta no documenta este parámetro: si Instagram lo ignora, el pedido ya va copiado como respaldo.
+      const url = `${IG_DM}?text=${encodeURIComponent(buildMsg())}`;
+      toast("Abriendo tu chat con @" + IG + " ✓ Tu pedido también va copiado por si hay que pegarlo");
+      const w = window.open(url, "_blank", "noopener");
+      if (!w) setTimeout(() => { location.href = url; }, 350); // si el navegador bloquea la pestaña nueva
     } else {
       toast("Tu pedido ya está listo ✓ · " + IG_SOON);
     }
