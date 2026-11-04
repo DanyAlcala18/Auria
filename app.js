@@ -403,8 +403,28 @@
 
   /* ---------- Order via Instagram ---------- */
   let orderItems = [];
+  const ESTADOS = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua",
+    "Ciudad de México", "Coahuila", "Colima", "Durango", "Estado de México", "Guanajuato", "Guerrero", "Hidalgo",
+    "Jalisco", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo",
+    "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"];
+  $("#ofState").insertAdjacentHTML("beforeend", ESTADOS.map(e => `<option value="${e}">${e}</option>`).join(""));
+
+  const orderForm = $("#orderForm");
+  const fields = () => $$(".order-in[data-key]", orderForm);
+  const digits = s => String(s).replace(/\D/g, "");
+  const ship = () => Object.fromEntries(fields().map(f => [f.dataset.key, f.value.trim()]));
+  const RULES = {
+    name: v => v.length >= 3 && /\s/.test(v),       // nombre y apellido
+    phone: v => digits(v).length === 10,
+    cp: v => /^\d{5}$/.test(v),
+    text: v => v.length >= 2,
+    select: v => v !== ""
+  };
+  const isValid = f => !f.dataset.rule || RULES[f.dataset.rule](f.value.trim());
+  const fmtPhone = v => { const d = digits(v); return d.length === 10 ? `${d.slice(0, 2)} ${d.slice(2, 6)} ${d.slice(6)}` : v; };
+
   function buildMsg() {
-    const name = $("#orderName").value.trim(), city = $("#orderCity").value.trim();
+    const s = ship();
     const lines = ["¡Hola AURIA! ✨ Quiero hacer este pedido:", ""];
     orderItems.forEach((i, n) => {
       const p = byId(i.id);
@@ -412,26 +432,54 @@
       lines.push(`   Talla: ${sizeLabel(p, i.size)} · Color: ${p.color}`);
       lines.push(`   Cantidad: ${i.qty} · ${fmt(p.price * i.qty)}`);
     });
-    lines.push("", `Total: ${fmt(cartTotal(orderItems))} MXN`);
-    lines.push(`Nombre: ${name || "—"}`);
-    lines.push(`Envío a: ${city || "—"}`);
-    lines.push("", "¿Me confirman disponibilidad y forma de pago? 🙏");
+    lines.push("", `Subtotal: ${fmt(cartTotal(orderItems))} MXN (+ envío)`);
+    lines.push("", "📦 Datos de envío");
+    lines.push(`Nombre: ${s.name || "—"}`);
+    lines.push(`Teléfono: ${s.phone ? fmtPhone(s.phone) : "—"}`);
+    lines.push(`Calle y número: ${s.street || "—"}`);
+    lines.push(`Colonia: ${s.col || "—"}`);
+    lines.push(`C.P.: ${s.cp || "—"}`);
+    lines.push(`Ciudad: ${s.city || "—"}, ${s.state || "—"}`);
+    if (s.ref) lines.push(`Referencias: ${s.ref}`);
+    lines.push("", "¿Me confirman disponibilidad, costo de envío y forma de pago? 🙏");
     return lines.join("\n");
   }
   const refreshMsg = () => { $("#orderMsg").textContent = buildMsg(); };
+
+  // Datos guardados en el navegador para la próxima compra (incluye lo que se guardaba antes)
+  function loadShip() {
+    const saved = store.get("auria_ship", null) || { name: store.get("auria_name", ""), city: store.get("auria_city", "") };
+    fields().forEach(f => { f.value = saved[f.dataset.key] || ""; });
+  }
+  const saveShip = () => store.set("auria_ship", ship());
+
   function openOrder(items) {
     orderItems = items;
-    $("#orderName").value = store.get("auria_name", "");
-    $("#orderCity").value = store.get("auria_city", "");
-    $$("#orderForm .order-in").forEach(i => i.classList.remove("err"));
-    $$("#orderForm .order-err").forEach(m => m.classList.remove("show"));
+    loadShip();
+    fields().forEach(f => { f.classList.remove("err"); f.closest(".of-field").classList.remove("bad"); });
     $("#orderCopy").hidden = true;
     refreshMsg();
     openLayer(orderEl);
   }
-  const clearErr = (input, msg) => { if (input.value.trim()) { input.classList.remove("err"); $(msg).classList.remove("show"); } };
-  $("#orderName").addEventListener("input", e => { store.set("auria_name", e.target.value); clearErr(e.target, "#errName"); refreshMsg(); });
-  $("#orderCity").addEventListener("input", e => { store.set("auria_city", e.target.value); clearErr(e.target, "#errCity"); refreshMsg(); });
+  orderForm.addEventListener("input", e => {
+    const f = e.target.closest(".order-in"); if (!f) return;
+    if (f.dataset.rule === "cp") f.value = digits(f.value).slice(0, 5);
+    if (f.dataset.rule === "phone") f.value = f.value.replace(/[^\d\s-]/g, "");
+    if (isValid(f)) { f.classList.remove("err"); f.closest(".of-field").classList.remove("bad"); }
+    saveShip(); refreshMsg();
+  });
+  orderForm.addEventListener("change", e => {
+    const f = e.target.closest(".order-in"); if (!f) return;
+    if (f.dataset.rule === "phone" && isValid(f)) f.value = fmtPhone(f.value);
+    if (isValid(f)) { f.classList.remove("err"); f.closest(".of-field").classList.remove("bad"); }
+    saveShip(); refreshMsg();
+  });
+  // al salir de un campo con error, mostrar el aviso
+  orderForm.addEventListener("focusout", e => {
+    const f = e.target.closest(".order-in[data-rule]"); if (!f || !f.value.trim()) return;
+    const bad = !isValid(f);
+    f.classList.toggle("err", bad); f.closest(".of-field").classList.toggle("bad", bad);
+  });
   $("#checkoutBtn").addEventListener("click", () => { closeLayer(cartEl); openOrder(cart.map(i => ({ ...i }))); });
 
   function copyText(txt) {
@@ -447,19 +495,20 @@
     try { navigator.clipboard && navigator.clipboard.writeText(txt).catch(() => {}); ok = true; } catch {}
     return ok;
   }
-  // Nombre y ciudad son obligatorios
+  // Todos los datos de contacto y dirección son obligatorios (menos referencias)
   function validOrder() {
-    let first = null;
-    [["#orderName", "#errName"], ["#orderCity", "#errCity"]].forEach(([inp, msg]) => {
-      const el = $(inp), bad = el.value.trim().length < 2;
-      el.classList.toggle("err", bad);
-      $(msg).classList.toggle("show", bad);
-      if (bad && !first) first = el;
+    let first = null, nBad = 0;
+    fields().forEach(f => {
+      const bad = !isValid(f);
+      f.classList.toggle("err", bad);
+      f.closest(".of-field").classList.toggle("bad", bad);
+      if (bad) { nBad++; if (!first) first = f; }
     });
     if (first) {
       first.classList.remove("shake"); void first.offsetWidth; first.classList.add("shake");
-      first.focus();
-      toast("Completa tu nombre y ciudad para enviar el pedido");
+      first.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => first.focus({ preventScroll: true }), 350);
+      toast(nBad === 1 ? "Falta 1 dato de envío por completar" : `Faltan ${nBad} datos de envío por completar`);
       return false;
     }
     return true;
@@ -468,8 +517,10 @@
   $("#orderForm").addEventListener("submit", e => {
     e.preventDefault();
     if (!validOrder()) return;
+    saveShip();
     copyText(buildMsg());
     $("#orderCopy").hidden = false;
+    document.dispatchEvent(new CustomEvent("auria:order-sent"));
     if (HAS_IG) {
       // Se intenta abrir el chat con el mensaje ya escrito (?text=).
       // Meta no documenta este parámetro: si Instagram lo ignora, el pedido ya va copiado como respaldo.

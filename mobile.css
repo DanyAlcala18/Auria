@@ -215,6 +215,9 @@ img{-webkit-user-drag:none}
   .order-box{padding:30px 18px 22px}
   .order-box h3{font-size:27px}
   .order-in{font-size:16px}           /* evita zoom en iPhone */
+  .of-group{padding:12px 12px 14px;margin-bottom:14px}
+  .of-grid{gap:2px 10px}
+  .of-group legend{font-size:18px}
   .order-msg{max-height:150px}
   .pol-box{max-height:calc(100dvh - 24px)}
 

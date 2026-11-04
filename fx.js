@@ -219,13 +219,16 @@
     if (!t) return;
     const r = t.getBoundingClientRect();
     const cx = e.clientX || r.left + r.width / 2, cy = e.clientY || r.top + r.height / 2;
-    if (t.id === "orderGo") {
-      const ok = ["#orderName", "#orderCity"].every(s => ($(s).value || "").trim().length >= 2);
-      if (ok) burst(cx, cy, 36, ["#f9ce34", "#ee2a7b", "#6228d7", "#D9825E"], 1.8);
-    }
+    if (t.id === "orderGo") return; // se maneja con el evento "auria:order-sent" (solo si el formulario es válido)
     else if (t.matches(".wish, #qvWish")) { if (!t.classList.contains("on")) burst(cx, cy, 10, ["#B4532F", "#ee2a7b", "#D9825E"], .7); }
     else burst(cx, cy, 14);
   }, true);
+
+  document.addEventListener("auria:order-sent", () => {
+    const b = $("#orderGo"); if (!b) return;
+    const r = b.getBoundingClientRect();
+    burst(r.left + r.width / 2, r.top + r.height / 2, 36, ["#f9ce34", "#ee2a7b", "#6228d7", "#D9825E"], 1.8);
+  });
 
   /* ---------- Bolsa: sacudida cuando sube el contador ---------- */
   const cc = $("#cartCount"), cartBtn = $("#cartBtn");
@@ -501,7 +504,7 @@
       })();
     }).observe(orderEl, { attributes: true, attributeFilter: ["class"] });
     // si la clienta escribe su nombre o ciudad, app.js reescribe el mensaje: cancelamos la animación
-    $$("#orderName, #orderCity").forEach(i => i.addEventListener("input", stop, true));
+    $$("#orderForm .order-in").forEach(i => { i.addEventListener("input", stop, true); i.addEventListener("change", stop, true); });
     ["#orderGo", "#orderCopy"].forEach(s => { const b = $(s); b && b.addEventListener("pointerdown", stop, true); });
   }
 

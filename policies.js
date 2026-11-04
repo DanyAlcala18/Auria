@@ -78,7 +78,7 @@ const POLICIES = {
         "Con tu autorización, avisarte de nuevas colecciones y promociones."
       ]},
       { h: "Con quién los compartimos", p: "Solo compartimos tu nombre, teléfono y dirección con la paquetería encargada de entregar tu pedido. No vendemos ni rentamos tu información." },
-      { h: "Datos en este sitio", p: "Este sitio no tiene registro de usuarias. Tu bolsa, favoritos y nombre del pedido se guardan solo en tu propio navegador para que no los pierdas." },
+      { h: "Datos en este sitio", p: "Este sitio no tiene registro de usuarias. Tu bolsa, tus favoritos y los datos de envío que escribes en el pedido se guardan solo en tu propio navegador para que no tengas que escribirlos otra vez. Esos datos solo nos llegan cuando tú nos envías el mensaje por Instagram." },
       { h: "Tus derechos", p: "Puedes solicitar en cualquier momento el acceso, corrección o eliminación de tus datos escribiéndonos por mensaje directo en Instagram." }
     ]
   },

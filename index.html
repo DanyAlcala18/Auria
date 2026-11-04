@@ -561,18 +561,66 @@
     <div class="order-ic"><svg><use href="#i-ig"/></svg></div>
     <h3 id="orderTitle">Envía tu pedido por Instagram</h3>
     <ol class="order-steps">
-      <li><b>1</b><span>Escribe tu nombre y tu ciudad</span></li>
+      <li><b>1</b><span>Llena tus datos de contacto y envío</span></li>
       <li><b>2</b><span>Toca <em>“Enviar pedido por Instagram”</em>: se abre el chat de <span class="ig-handle">@somos_auria</span> con tu pedido</span></li>
       <li><b>3</b><span>Toca <em>Enviar</em>. Si el mensaje no aparece escrito, mantén presionado y toca <em>Pegar</em>: ya lo copiamos por ti</span></li>
     </ol>
     <form id="orderForm" novalidate>
-      <label class="order-lbl" for="orderName">Tu nombre <span class="req">*</span></label>
-      <input id="orderName" class="order-in" type="text" placeholder="Ej. Mariana López" autocomplete="name" required>
-      <small class="order-err" id="errName">Escribe tu nombre para tu pedido</small>
-      <label class="order-lbl" for="orderCity">Ciudad y estado <span class="req">*</span></label>
-      <input id="orderCity" class="order-in" type="text" placeholder="Ej. Guadalajara, Jalisco" autocomplete="address-level2" required>
-      <small class="order-err" id="errCity">Escribe tu ciudad y estado para calcular el envío</small>
-      <pre class="order-msg" id="orderMsg"></pre>
+      <fieldset class="of-group">
+        <legend><svg><use href="#i-chat"/></svg>Datos de contacto</legend>
+        <div class="of-grid">
+          <div class="of-field span2">
+            <label class="order-lbl" for="ofName">Nombre completo <span class="req">*</span></label>
+            <input id="ofName" class="order-in" data-key="name" data-rule="name" type="text" placeholder="Ej. Mariana López García" autocomplete="name" required>
+            <small class="order-err">Escribe tu nombre y apellido</small>
+          </div>
+          <div class="of-field span2">
+            <label class="order-lbl" for="ofPhone">Teléfono / WhatsApp <span class="req">*</span></label>
+            <input id="ofPhone" class="order-in" data-key="phone" data-rule="phone" type="tel" inputmode="numeric" maxlength="14" placeholder="10 dígitos · Ej. 33 1234 5678" autocomplete="tel-national" required>
+            <small class="order-err">Escribe un teléfono de 10 dígitos (lo pide la paquetería)</small>
+          </div>
+        </div>
+      </fieldset>
+      <fieldset class="of-group">
+        <legend><svg><use href="#i-truck"/></svg>Dirección de envío</legend>
+        <div class="of-grid">
+          <div class="of-field span2">
+            <label class="order-lbl" for="ofStreet">Calle y número <span class="req">*</span></label>
+            <input id="ofStreet" class="order-in" data-key="street" data-rule="text" type="text" placeholder="Ej. Av. Juárez 123, Int. 4" autocomplete="address-line1" required>
+            <small class="order-err">Escribe tu calle y número</small>
+          </div>
+          <div class="of-field span2">
+            <label class="order-lbl" for="ofCol">Colonia <span class="req">*</span></label>
+            <input id="ofCol" class="order-in" data-key="col" data-rule="text" type="text" placeholder="Ej. Centro" autocomplete="address-line2" required>
+            <small class="order-err">Escribe tu colonia</small>
+          </div>
+          <div class="of-field">
+            <label class="order-lbl" for="ofCp">Código postal <span class="req">*</span></label>
+            <input id="ofCp" class="order-in" data-key="cp" data-rule="cp" type="text" inputmode="numeric" maxlength="5" placeholder="Ej. 44100" autocomplete="postal-code" required>
+            <small class="order-err">El código postal tiene 5 dígitos</small>
+          </div>
+          <div class="of-field">
+            <label class="order-lbl" for="ofCity">Ciudad / municipio <span class="req">*</span></label>
+            <input id="ofCity" class="order-in" data-key="city" data-rule="text" type="text" placeholder="Ej. Guadalajara" autocomplete="address-level2" required>
+            <small class="order-err">Escribe tu ciudad o municipio</small>
+          </div>
+          <div class="of-field span2">
+            <label class="order-lbl" for="ofState">Estado <span class="req">*</span></label>
+            <select id="ofState" class="order-in" data-key="state" data-rule="select" autocomplete="address-level1" required>
+              <option value="">Selecciona tu estado</option>
+            </select>
+            <small class="order-err">Selecciona tu estado</small>
+          </div>
+          <div class="of-field span2">
+            <label class="order-lbl" for="ofRef">Referencias del domicilio</label>
+            <textarea id="ofRef" class="order-in" data-key="ref" rows="2" maxlength="160" placeholder="Ej. Casa blanca con portón negro, entre calle Morelos y Hidalgo"></textarea>
+          </div>
+        </div>
+      </fieldset>
+      <details class="of-preview">
+        <summary><svg><use href="#i-eye"/></svg>Ver mensaje del pedido</summary>
+        <pre class="order-msg" id="orderMsg"></pre>
+      </details>
       <button class="btn btn-ig w100" id="orderGo" type="submit"><svg><use href="#i-send"/></svg>Enviar pedido por Instagram</button>
     </form>
     <button class="btn btn-text w100" id="orderCopy" type="button" hidden>¿No se pegó? Copiar el pedido otra vez</button>
