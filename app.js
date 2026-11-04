@@ -12,6 +12,8 @@
   const IG_DM = HAS_IG ? `https://ig.me/m/${IG}` : "#instagram";
   const IG_PROFILE = HAS_IG ? `https://www.instagram.com/${IG}/` : "#instagram";
   const IG_SOON = "Nuestro Instagram estará disponible muy pronto ✨";
+  const CAN_HOVER = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const IS_PHONE = matchMedia("(max-width: 760px)").matches;
   const icon = (name, cls = "") => `<svg class="${cls}"><use href="#${name}"/></svg>`;
 
   const store = {
@@ -172,7 +174,7 @@
       <div class="card-media" data-open="${p.id}">
         ${p.badge ? `<span class="badge ${badgeCls(p.badge)}">${p.badge}</span>` : ""}
         <img class="img-a" src="${p.img[0]}" alt="${p.name}" loading="lazy">
-        <img class="img-b" src="${p.img[1] || p.img[0]}" alt="" loading="lazy">
+        ${CAN_HOVER ? `<img class="img-b" src="${p.img[1] || p.img[0]}" alt="" loading="lazy" decoding="async">` : ""}
         <button class="wish ${on ? "on" : ""}" data-id="${p.id}" aria-label="Favorito">${icon(on ? "i-heart-f" : "i-heart")}</button>
         <div class="card-actions">
           ${multi
@@ -594,7 +596,10 @@
     pop.classList.remove("show"); void pop.offsetWidth; pop.classList.add("show");
     popT = setTimeout(() => { pop.classList.remove("show"); schedulePop(); }, 6000);
   }
-  function schedulePop() { clearTimeout(popT); popT = setTimeout(showPop, 9000 + Math.random() * 9000); }
+  function schedulePop() {
+    clearTimeout(popT);
+    popT = setTimeout(showPop, IS_PHONE ? 18000 + Math.random() * 14000 : 9000 + Math.random() * 9000);
+  }
   $("#spClose").addEventListener("click", e => {
     e.stopPropagation(); pop.classList.remove("show"); clearTimeout(popT);
     setTimeout(schedulePop, 20000);
@@ -604,7 +609,7 @@
     if (p) { pop.classList.remove("show"); openQV(p.id); }
   });
   pop.style.cursor = "pointer";
-  setTimeout(showPop, 7000);
+  setTimeout(showPop, IS_PHONE ? 12000 : 7000);
 
   /* ---------- API para fx.js ---------- */
   window.AURIA = { openQV, addToCart, byId, fmt };

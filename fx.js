@@ -11,10 +11,12 @@
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const rand = (a, b) => a + Math.random() * (b - a);
   const SPARK = '<svg viewBox="0 0 24 24"><use href="#i-spark"/></svg>';
+  const PHONE = matchMedia("(max-width: 760px)").matches || matchMedia("(pointer: coarse)").matches;
   const API = window.AURIA || {};
 
   /* ---------- Grano de película ---------- */
-  if (!reduce) document.body.insertAdjacentHTML("beforeend", '<div class="grain" aria-hidden="true"></div>');
+  // (en celular se omite: repintar toda la pantalla gasta batería)
+  if (!reduce && !PHONE) document.body.insertAdjacentHTML("beforeend", '<div class="grain" aria-hidden="true"></div>');
 
   /* ---------- Loader: porcentaje ---------- */
   const pctEl = $("#loaderPct");
@@ -136,11 +138,11 @@
       vy: rand(-.18, -.05), vx: rand(-.05, .05), c: COLORS[Math.floor(rand(0, COLORS.length))]
     });
     const resize = () => {
-      dpr = Math.min(2, devicePixelRatio || 1);
+      dpr = Math.min(PHONE ? 1.5 : 2, devicePixelRatio || 1);
       W = hero.offsetWidth; H = hero.offsetHeight;
       cv.width = W * dpr; cv.height = H * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const n = Math.round(clamp(W / 28, 18, 52));
+      const n = PHONE ? 14 : Math.round(clamp(W / 28, 18, 52));
       stars = Array.from({ length: n }, make);
     };
     const star = (x, y, r) => {
@@ -168,7 +170,9 @@
     };
     const start = () => { if (!running) { running = true; requestAnimationFrame(draw); } };
     resize(); start();
-    addEventListener("resize", resize);
+    // en celular la barra del navegador cambia la altura al hacer scroll: solo recalcular si cambia el ancho
+    let lastW = innerWidth;
+    addEventListener("resize", () => { if (!PHONE || innerWidth !== lastW) { lastW = innerWidth; resize(); } });
     new IntersectionObserver(es => { visible = es[0].isIntersecting; if (visible) start(); }).observe(hero);
     document.addEventListener("visibilitychange", () => { if (!document.hidden) start(); });
 
@@ -496,6 +500,93 @@
     // si la clienta escribe su nombre o ciudad, app.js reescribe el mensaje: cancelamos la animación
     $$("#orderName, #orderCity").forEach(i => i.addEventListener("input", stop, true));
     ["#orderGo", "#orderCopy"].forEach(s => { const b = $(s); b && b.addEventListener("pointerdown", stop, true); });
+  }
+
+  /* =========================================================
+     CELULAR: barra inferior y gestos táctiles
+     ========================================================= */
+
+  // Barra inferior: buscar, bolsa, contador y sección activa
+  const bnav = $("#bnav");
+  if (bnav) {
+    $("#bnSearch").addEventListener("click", () => $("#searchBtn").click());
+    $("#bnCart").addEventListener("click", () => $("#cartBtn").click());
+    const bnCount = $("#bnCount"), src = $("#cartCount");
+    const syncCount = () => {
+      const n = +src.textContent || 0;
+      bnCount.textContent = n; bnCount.classList.toggle("show", n > 0);
+    };
+    new MutationObserver(syncCount).observe(src, { childList: true, characterData: true, subtree: true });
+    syncCount();
+    const shop = $("#tienda");
+    const setActive = () => {
+      const r = shop.getBoundingClientRect();
+      const inShop = r.top < innerHeight * .5 && r.bottom > innerHeight * .3;
+      $$("[data-bn]", bnav).forEach(a => a.classList.toggle("active", a.dataset.bn === (inShop ? "tienda" : "top")));
+    };
+    addEventListener("scroll", () => requestAnimationFrame(setActive), { passive: true });
+    setActive();
+  }
+
+  // Deslizar con el dedo entre fotos en el detalle
+  const qvM = $("#qv .qv-main");
+  if (qvM) {
+    let sx = 0, sy = 0, tracking = false;
+    qvM.addEventListener("touchstart", e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; tracking = true; }, { passive: true });
+    qvM.addEventListener("touchend", e => {
+      if (!tracking) return; tracking = false;
+      const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+      const thumbs = $$("#qvThumbs button"); if (thumbs.length < 2) return;
+      const cur = thumbs.findIndex(b => b.classList.contains("active"));
+      const next = (cur + (dx < 0 ? 1 : -1) + thumbs.length) % thumbs.length;
+      thumbs[next].click();
+    }, { passive: true });
+  }
+
+  // Deslizar hacia abajo para cerrar las hojas (detalle, pedido, políticas)
+  if (PHONE) {
+    $$(".modal").forEach(modal => {
+      const box = $(".modal-box", modal), closer = $(".modal-x", modal);
+      if (!box || !closer) return;
+      let y0 = 0, dy = 0, drag = false;
+      box.addEventListener("touchstart", e => {
+        // solo si la hoja está hasta arriba y no se toca la galería/un campo
+        if (box.scrollTop > 2 || e.target.closest("input, textarea, .qv-thumbs, .pol-tabs")) return;
+        y0 = e.touches[0].clientY; dy = 0; drag = true;
+      }, { passive: true });
+      box.addEventListener("touchmove", e => {
+        if (!drag) return;
+        dy = e.touches[0].clientY - y0;
+        if (dy <= 0) { box.style.transform = ""; box.classList.remove("dragging"); return; }
+        box.classList.add("dragging");
+        box.style.transform = `translateY(${dy * .9}px)`;
+      }, { passive: true });
+      box.addEventListener("touchend", () => {
+        if (!drag) return; drag = false;
+        box.classList.remove("dragging");
+        box.style.transform = "";
+        if (dy > 110) closer.click();
+      });
+    });
+
+    // Carrito: deslizar a la derecha para cerrar
+    const panel = $("#cart .drawer-panel");
+    if (panel) {
+      let x0 = 0, y0 = 0, dx = 0, drag = false;
+      panel.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = 0; drag = true; }, { passive: true });
+      panel.addEventListener("touchmove", e => {
+        if (!drag) return;
+        dx = e.touches[0].clientX - x0;
+        const dyy = Math.abs(e.touches[0].clientY - y0);
+        if (dx > 0 && dx > dyy) { panel.style.transition = "none"; panel.style.transform = `translateX(${dx}px)`; }
+      }, { passive: true });
+      panel.addEventListener("touchend", () => {
+        if (!drag) return; drag = false;
+        panel.style.transition = ""; panel.style.transform = "";
+        if (dx > 100) $("#cart [data-close-cart]").click();
+      });
+    }
   }
 
   /* ---------- Firma gigante en el pie ---------- */

@@ -2,7 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="AURIA">
   <title>AURIA · Activewear · Brilla con tu propia fuerza</title>
   <meta name="description" content="AURIA — ropa deportiva para mujer: leggings, flares, jumpsuits y chamarras. Pide por mensaje directo en Instagram. Envíos a todo México.">
   <meta name="theme-color" content="#B4532F">
@@ -12,6 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="fx.css">
+  <link rel="stylesheet" href="mobile.css">
 </head>
 <body>
 
@@ -45,6 +51,8 @@
     <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></g></symbol>
     <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
     <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></g></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.5l8.5 7V20a.5.5 0 0 1-.5.5h-5v-6h-6v6H4a.5.5 0 0 1-.5-.5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></g></symbol>
     <symbol id="logo-mark" viewBox="0 0 100 100">
       <circle cx="50" cy="52" r="40" fill="none" stroke="currentColor" stroke-width="2.2"/>
       <path d="M50 2c.9 7 4.5 10.6 11 11.5-6.5.9-10.1 4.5-11 11.5-.9-7-4.5-10.6-11-11.5C45.5 12.6 49.1 9 50 2z" fill="currentColor"/>
@@ -158,7 +166,7 @@
       </div>
 
       <div class="hero-visual">
-        <div class="hv-card hv-main parallax" data-speed="0.06"><img src="img/contour-1.jpg" alt="Jumpsuit Contour Flare AURIA"></div>
+        <div class="hv-card hv-main parallax" data-speed="0.06"><img src="img/contour-1.jpg" alt="Jumpsuit Contour Flare AURIA" fetchpriority="high" decoding="async"></div>
         <div class="hv-card hv-top parallax" data-speed="-0.08"><img src="img/elite-chocolate-1.jpg" alt="Legging Elite Chocolate"></div>
         <div class="hv-card hv-bottom parallax" data-speed="0.12"><img src="img/golden-zip-1.jpg" alt="Chamarra Golden Zip"></div>
         <div class="hv-badge float">
@@ -218,7 +226,7 @@
       <div class="sec-head reveal">
         <p class="eyebrow"><svg><use href="#i-spark"/></svg> La colección</p>
         <h2>Diseñada para <em>moverte</em></h2>
-        <p class="sec-sub">Pasa el cursor sobre cada pieza para verla de cerca. Toca para ver detalles y agregarla a tu bolsa.</p>
+        <p class="sec-sub"><span class="only-hover">Pasa el cursor sobre cada pieza para verla de cerca. Haz clic para ver detalles y agregarla a tu bolsa.</span><span class="only-touch">Toca cualquier pieza para ver sus fotos, elegir tu talla y agregarla a tu bolsa.</span></p>
       </div>
       <div class="toolbar reveal">
         <div class="tabs" id="tabs"></div>
@@ -439,6 +447,15 @@
 </a>
 <button class="to-top" id="toTop" aria-label="Subir"><svg><use href="#i-arrow"/></svg></button>
 
+<!-- Barra de navegación inferior (solo celular) -->
+<nav class="bnav" id="bnav" aria-label="Navegación rápida">
+  <a href="#top" class="bnav-i active" data-bn="top"><svg><use href="#i-home"/></svg><span>Inicio</span></a>
+  <a href="#tienda" class="bnav-i" data-bn="tienda" data-filter="todo"><svg><use href="#i-grid"/></svg><span>Tienda</span></a>
+  <button class="bnav-i" id="bnSearch" type="button"><svg><use href="#i-search"/></svg><span>Buscar</span></button>
+  <button class="bnav-i" id="bnCart" type="button"><svg><use href="#i-bag"/></svg><span>Bolsa</span><b class="bnav-count" id="bnCount">0</b></button>
+  <a class="bnav-i bnav-ig ig-link" target="_blank" rel="noopener"><i><svg><use href="#i-ig"/></svg></i><span>Mensaje</span></a>
+</nav>
+
 <!-- Purchase notification -->
 <div class="sale-pop" id="salePop" role="status" aria-live="polite">
   <img id="spImg" src="" alt="">
@@ -494,16 +511,18 @@
       </div>
       <ul class="qv-feat" id="qvFeat"></ul>
       <div class="qv-stock"><span class="dot-live"></span><span id="qvStock"></span></div>
+      <div class="qv-buybar">
       <div class="qv-actions">
         <div class="qty">
           <button data-q="-1" aria-label="Menos"><svg><use href="#i-minus"/></svg></button>
           <span id="qvQty">1</span>
           <button data-q="1" aria-label="Más"><svg><use href="#i-plus"/></svg></button>
         </div>
-        <button class="btn btn-primary grow" id="qvAdd"><svg><use href="#i-bag"/></svg>Agregar a la bolsa</button>
+        <button class="btn btn-primary grow" id="qvAdd"><svg><use href="#i-bag"/></svg>Agregar<span class="hide-sm">&nbsp;a la bolsa</span></button>
         <button class="icon-btn wish-lg" id="qvWish" aria-label="Favorito"><svg><use href="#i-heart"/></svg></button>
       </div>
       <button class="btn btn-ig w100" id="qvBuy"><svg><use href="#i-ig"/></svg>Pedir ahora por Instagram</button>
+      </div>
       <div class="qv-perks">
         <span><svg><use href="#i-truck"/></svg>Envío a todo México</span>
         <span><svg><use href="#i-shield"/></svg>Compra segura por DM</span>
