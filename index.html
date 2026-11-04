@@ -561,17 +561,21 @@
     <div class="order-ic"><svg><use href="#i-ig"/></svg></div>
     <h3 id="orderTitle">Envía tu pedido por Instagram</h3>
     <ol class="order-steps">
-      <li><b>1</b> Toca <em>“Copiar y abrir Instagram”</em></li>
-      <li><b>2</b> En el chat de <span class="ig-handle">@auria</span>, mantén presionado y <em>pega</em></li>
-      <li><b>3</b> Envía el mensaje y te confirmamos tu pedido</li>
+      <li><b>1</b><span>Escribe tu nombre y tu ciudad</span></li>
+      <li><b>2</b><span>Toca <em>“Enviar pedido por Instagram”</em>: se abre el chat de <span class="ig-handle">@somos_auria</span> con tu pedido listo para pegar</span></li>
+      <li><b>3</b><span>Mantén presionado el cuadro de mensaje, toca <em>Pegar</em> y envía</span></li>
     </ol>
-    <label class="order-lbl" for="orderName">Tu nombre (opcional)</label>
-    <input id="orderName" class="order-in" type="text" placeholder="Ej. Mariana López">
-    <label class="order-lbl" for="orderCity">Ciudad y estado (opcional)</label>
-    <input id="orderCity" class="order-in" type="text" placeholder="Ej. Guadalajara, Jalisco">
-    <pre class="order-msg" id="orderMsg"></pre>
-    <button class="btn btn-ig w100" id="orderGo"><svg><use href="#i-copy"/></svg>Copiar y abrir Instagram</button>
-    <button class="btn btn-text w100" id="orderCopy">Solo copiar mensaje</button>
+    <form id="orderForm" novalidate>
+      <label class="order-lbl" for="orderName">Tu nombre <span class="req">*</span></label>
+      <input id="orderName" class="order-in" type="text" placeholder="Ej. Mariana López" autocomplete="name" required>
+      <small class="order-err" id="errName">Escribe tu nombre para tu pedido</small>
+      <label class="order-lbl" for="orderCity">Ciudad y estado <span class="req">*</span></label>
+      <input id="orderCity" class="order-in" type="text" placeholder="Ej. Guadalajara, Jalisco" autocomplete="address-level2" required>
+      <small class="order-err" id="errCity">Escribe tu ciudad y estado para calcular el envío</small>
+      <pre class="order-msg" id="orderMsg"></pre>
+      <button class="btn btn-ig w100" id="orderGo" type="submit"><svg><use href="#i-send"/></svg>Enviar pedido por Instagram</button>
+    </form>
+    <button class="btn btn-text w100" id="orderCopy" type="button" hidden>¿No se pegó? Copiar el pedido otra vez</button>
     <p class="order-legal">Al enviar tu pedido aceptas nuestros <a href="#politica-terminos" data-policy="terminos">Términos</a>, la política de <a href="#politica-cambios" data-policy="cambios">Cambios</a> y el <a href="#politica-privacidad" data-policy="privacidad">Aviso de privacidad</a>.</p>
   </div>
 </div>

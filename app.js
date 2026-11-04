@@ -413,8 +413,8 @@
       lines.push(`   Cantidad: ${i.qty} · ${fmt(p.price * i.qty)}`);
     });
     lines.push("", `Total: ${fmt(cartTotal(orderItems))} MXN`);
-    if (name) lines.push(`Nombre: ${name}`);
-    if (city) lines.push(`Envío a: ${city}`);
+    lines.push(`Nombre: ${name || "—"}`);
+    lines.push(`Envío a: ${city || "—"}`);
     lines.push("", "¿Me confirman disponibilidad y forma de pago? 🙏");
     return lines.join("\n");
   }
@@ -423,11 +423,15 @@
     orderItems = items;
     $("#orderName").value = store.get("auria_name", "");
     $("#orderCity").value = store.get("auria_city", "");
+    $$("#orderForm .order-in").forEach(i => i.classList.remove("err"));
+    $$("#orderForm .order-err").forEach(m => m.classList.remove("show"));
+    $("#orderCopy").hidden = true;
     refreshMsg();
     openLayer(orderEl);
   }
-  $("#orderName").addEventListener("input", e => { store.set("auria_name", e.target.value); refreshMsg(); });
-  $("#orderCity").addEventListener("input", e => { store.set("auria_city", e.target.value); refreshMsg(); });
+  const clearErr = (input, msg) => { if (input.value.trim()) { input.classList.remove("err"); $(msg).classList.remove("show"); } };
+  $("#orderName").addEventListener("input", e => { store.set("auria_name", e.target.value); clearErr(e.target, "#errName"); refreshMsg(); });
+  $("#orderCity").addEventListener("input", e => { store.set("auria_city", e.target.value); clearErr(e.target, "#errCity"); refreshMsg(); });
   $("#checkoutBtn").addEventListener("click", () => { closeLayer(cartEl); openOrder(cart.map(i => ({ ...i }))); });
 
   function copyText(txt) {
@@ -443,17 +447,39 @@
     try { navigator.clipboard && navigator.clipboard.writeText(txt).catch(() => {}); ok = true; } catch {}
     return ok;
   }
-  $("#orderGo").addEventListener("click", () => {
+  // Nombre y ciudad son obligatorios
+  function validOrder() {
+    let first = null;
+    [["#orderName", "#errName"], ["#orderCity", "#errCity"]].forEach(([inp, msg]) => {
+      const el = $(inp), bad = el.value.trim().length < 2;
+      el.classList.toggle("err", bad);
+      $(msg).classList.toggle("show", bad);
+      if (bad && !first) first = el;
+    });
+    if (first) {
+      first.classList.remove("shake"); void first.offsetWidth; first.classList.add("shake");
+      first.focus();
+      toast("Completa tu nombre y ciudad para enviar el pedido");
+      return false;
+    }
+    return true;
+  }
+  // Un solo toque: el pedido se copia solo y se abre el chat de Instagram
+  $("#orderForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (!validOrder()) return;
     copyText(buildMsg());
+    $("#orderCopy").hidden = false;
     if (HAS_IG) {
-      toast("Pedido copiado ✓ Pégalo en el chat de Instagram");
-      window.open(IG_DM, "_blank", "noopener");
+      toast("Tu pedido ya está listo ✓ En el chat mantén presionado y toca Pegar");
+      const w = window.open(IG_DM, "_blank", "noopener");
+      if (!w) setTimeout(() => { location.href = IG_DM; }, 350); // si el navegador bloquea la pestaña nueva
     } else {
-      toast("Pedido copiado ✓ · " + IG_SOON);
+      toast("Tu pedido ya está listo ✓ · " + IG_SOON);
     }
   });
   $("#orderCopy").addEventListener("click", () => {
-    toast(copyText(buildMsg()) ? "Mensaje copiado ✓" : "Selecciona y copia el mensaje");
+    toast(copyText(buildMsg()) ? "Pedido copiado otra vez ✓ Pégalo en el chat" : "Mantén presionado el mensaje de arriba para copiarlo");
   });
 
   /* ---------- Policies ---------- */

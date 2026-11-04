@@ -219,7 +219,10 @@
     if (!t) return;
     const r = t.getBoundingClientRect();
     const cx = e.clientX || r.left + r.width / 2, cy = e.clientY || r.top + r.height / 2;
-    if (t.id === "orderGo") burst(cx, cy, 36, ["#f9ce34", "#ee2a7b", "#6228d7", "#D9825E"], 1.8);
+    if (t.id === "orderGo") {
+      const ok = ["#orderName", "#orderCity"].every(s => ($(s).value || "").trim().length >= 2);
+      if (ok) burst(cx, cy, 36, ["#f9ce34", "#ee2a7b", "#6228d7", "#D9825E"], 1.8);
+    }
     else if (t.matches(".wish, #qvWish")) { if (!t.classList.contains("on")) burst(cx, cy, 10, ["#B4532F", "#ee2a7b", "#D9825E"], .7); }
     else burst(cx, cy, 14);
   }, true);
