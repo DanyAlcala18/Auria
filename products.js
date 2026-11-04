@@ -6,9 +6,9 @@
    - sizeNote: (opcional) equivalencia de la talla
    ============================================================ */
 const AURIA_CONFIG = {
-  // 👉 PENDIENTE: escribe aquí el usuario real de Instagram (sin @), por ejemplo "auria.mx".
-  //    Mientras esté vacío, los botones de Instagram copian el pedido y avisan "Muy pronto".
-  instagram: "",
+  // Usuario de Instagram (sin @). Perfil: https://www.instagram.com/somos_auria
+  //    Si se deja vacío, los botones de Instagram copian el pedido y avisan "Muy pronto".
+  instagram: "somos_auria",
   moneda: "MXN"
 };
 
